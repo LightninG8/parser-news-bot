@@ -25,23 +25,32 @@ class Database:
     })
 
   def get_users(self):
-    return self.users.find({})
+    return list(self.users.find({}))
 
   def get_user(self, id):
-    return self.users.find_one({"user_id": id})
+    filter = {"user_id": id}
+    return list(self.users.find_one(filter))[0]
 
 
   def unsubscribe_user(self, id):
-    self.users.update_one({"user_id": id}, {"$set": {"subscribe": False}})
+    filter = {"user_id": id}
+    self.users.update_one(filter, {"$set": {"subscribe": False}})
 
   def subscribe_user(self, id):
-    self.users.update_one({"user_id": id}, {"$set": {"subscribe": True}})
+    filter = {"user_id": id}
+    self.users.update_one(filter, {"$set": {"subscribe": True}})
 
   def add_tg_channel(self, user_id, chanel_id):
-    self.users.update_one({"user_id": user_id}, {"$push": {"tg_channels": chanel_id}})
+    filter = {"user_id": user_id}
+    self.users.update_one(filter, {"$push": {"tg_channels": chanel_id}})
 
   def add_vk_public(self, user_id, public_id):
-    self.users.update_one({"user_id": user_id}, {"$push": {"tg_channels": public_id}})
+    filter = {"user_id": user_id}
+    self.users.update_one(filter, {"$push": {"tg_channels": public_id}})
+
+  def update_vk_public_lastkey(self, user_id, public_id, lastkey):
+    filter = {"user_id": user_id, "vk_parser.publics.id": public_id}
+    self.users.update_one(filter, {"$set": {"vk_parser.publics.$.lastkey": lastkey}})
 
 
 
